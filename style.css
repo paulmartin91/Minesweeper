@@ -1,0 +1,86 @@
+body {
+background-color: rgb(231,236,163);
+font-family: arial;
+}
+
+#all {
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#buttons {
+  width: 400px;
+  justify-content: center;
+  display: flex;
+  margin-top: 20px;
+}
+
+input {
+  width: 30px;
+  border-radius: 5px;
+  margin: 0px 5px 0px 5px;
+  outline: none;
+  background-color: rgb(244,244,248);
+  font-family: arial;
+  font-size: 1em;
+}
+
+button {
+  border-radius: 5px;
+  box-shadow: 1px 1px #888888;
+  margin: 0px 2px 0px 2px;
+  background-color: rgb(164,197,234);
+  font-family: arial;
+  font-size: 1em;
+}
+
+#gameCanvas {
+  height: 0px;
+  width: 0px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  margin-top: 10px;
+}
+
+.tile {
+  width: 25px;
+  height: 25px;
+  border: solid 1px;
+  border-radius: 5px;
+  text-align: center;
+  user-select: none;
+  color: rgb(164,197,234);
+  border-color: black;
+  box-shadow: 2px 2px #888888;
+  background: rgb(164,197,234)
+}
+
+#test {
+  width: 50px;
+  height: 50px;
+  border: solid;
+}
+
+.ron {
+background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/MacBomb.svg/1280px-MacBomb.svg.png");
+background-size: cover;
+background: rgb(254,138,113);
+}
+
+.btn:focus {
+  outline: none;
+}
+
+.flag {
+  color: rgb(255,192,76);
+  background-color: rgb(255,192,76);
+  width: 25px;
+  border-radius: 50%/40% 50% 40% 40%;
+  border: solid 1px;
+  border-color: black;
+}
