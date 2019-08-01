@@ -13,3 +13,4 @@
 </ul>
 <br>
 <p>So please enjoy and let me know what you think, or if you come across any bugs!</p>
+<a href="https://paulmartin91.github.io/Minesweeper/">Give it a go!</a>
