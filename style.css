@@ -1,30 +1,63 @@
 body {
-background-color: rgb(231,236,163);
-font-family: arial;
+  background-color: rgb(231, 236, 163);
+  font-family: arial;
 }
 
-#all {
+.all {
   margin: auto;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  margin-top: 30;
 }
 
-#buttons {
-  width: 400px;
-  justify-content: center;
+.settingsContainer {
+  width: 500px;
+  height: 50px;
   display: flex;
-  margin-top: 20px;
+  justify-content: space-around;
+  align-items: flex-start;
+}
+
+.difficultyContainer {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sliderValue {
+  min-width: 250;
+  text-align: center;
+}
+
+.buttonsContainer {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.buttonsText {
+  font-size: 0.8em;
+  display: none;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 input {
-  width: 30px;
+  width: 50;
   border-radius: 5px;
   margin: 0px 5px 0px 5px;
   outline: none;
-  background-color: rgb(244,244,248);
+  background-color: rgb(244, 244, 248);
   font-family: arial;
   font-size: 1em;
 }
@@ -32,8 +65,7 @@ input {
 button {
   border-radius: 5px;
   box-shadow: 1px 1px #888888;
-  margin: 0px 2px 0px 2px;
-  background-color: rgb(164,197,234);
+  background-color: rgb(164, 197, 234);
   font-family: arial;
   font-size: 1em;
 }
@@ -54,22 +86,23 @@ button {
   border-radius: 5px;
   text-align: center;
   user-select: none;
-  color: rgb(164,197,234);
+  color: rgb(164, 197, 234);
   border-color: black;
   box-shadow: 2px 2px #888888;
-  background: rgb(164,197,234)
+  background: rgb(164, 197, 234);
+  transition: 0.25s;
+  transition-delay: 20ms;
 }
 
-#test {
-  width: 50px;
-  height: 50px;
-  border: solid;
+.slider {
+  width: 150px;
+  transition: 0.2s;
 }
 
 .ron {
-background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/MacBomb.svg/1280px-MacBomb.svg.png");
-background-size: cover;
-background: rgb(254,138,113);
+  background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/MacBomb.svg/1280px-MacBomb.svg.png");
+  background-size: cover;
+  background: rgb(254, 138, 113);
 }
 
 .btn:focus {
@@ -77,8 +110,8 @@ background: rgb(254,138,113);
 }
 
 .flag {
-  color: rgb(255,192,76);
-  background-color: rgb(255,192,76);
+  color: rgb(255, 192, 76);
+  background-color: rgb(255, 192, 76);
   width: 25px;
   border-radius: 50%/40% 50% 40% 40%;
   border: solid 1px;

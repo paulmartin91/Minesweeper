@@ -1,192 +1,374 @@
-var flagged = 0, gameOver = 0, mineEgged = 0, wrongFlagged = 0;
+/*
+TO DO...
+- Make win/lose obvious
+- clicking on a flag when flag isn't toggled should remove the flag and maybe add toggle flagged
 
-let flag = function(){
-  if (!flagged){
-    flagged = true
+*/
+
+var flagged = 0,
+  gameOver = false,
+  mineFlagged = 0,
+  wrongFlagged = 0,
+  mineCount = 0,
+  gameDifficulty = 0;
+
+const toggleUserFlagging = () => {
+  if (!flagged) {
+    flagged = true;
     document.getElementById("flag").style.backgroundColor = "rgb(255,192,76)";
   } else {
-    flagged = false
-    document.getElementById("flag").style.backgroundColor = ""
-    }
-}
-
-let test = function(){
-var flaggedMines = 0;
-mineCount = 0
-gameOver = 0;
-var myNode = document.getElementById("gameCanvas");
-while (myNode.firstChild) {
-    myNode.removeChild(myNode.firstChild);
-}
-  
-let canvasSize = document.getElementById("input").value
-let newCanvasSize = (canvasSize * 30) + (canvasSize*2)
-document.getElementById("gameCanvas").style.width = newCanvasSize+"px";
-document.getElementById("gameCanvas").style.height = newCanvasSize+"px";
-
-let mineArr = []
-for (let i=0;i<canvasSize;i++){
-let tempArr = []
-for (let p=0;p<canvasSize;p++){
-if (Math.floor(Math.random() * 10) == 1){
-  tempArr.push(true)
-  mineCount++
-} else {
-  tempArr.push(0)
-}
-}
-  mineArr.push(tempArr)
-}
-  let newerArr = []
-  mineArr.forEach((x, n)=>{
-  newerArr.push([]);
-  x.forEach((y, z)=>{
-    newerArr[n].push(y)
-    
-    if (x[z-1]===true){if (newerArr[n][z] !== true) {newerArr[n][z]++}}
-    if (x[z+1]===true){if (newerArr[n][z] !== true) {newerArr[n][z]++}}
-    if (n !== 0){
-    if (mineArr[n-1][z]===true){if (newerArr[n][z] !== true) {newerArr[n][z]++}}
-    if (mineArr[n-1][z-1]===true){if (newerArr[n][z] !== true) {newerArr[n][z]++}}
-    if (mineArr[n-1][z+1]===true){if (newerArr[n][z] !== true) {newerArr[n][z]++}} 
-    }
-    if (n !== mineArr.length-1){
-    if (mineArr[n+1][z]===true){if (newerArr[n][z] !== true) {newerArr[n][z]++}}
-    if (mineArr[n+1][z-1]===true){if (newerArr[n][z] !== true) {newerArr[n][z]++}}
-    if (mineArr[n+1][z+1]===true){if (newerArr[n][z] !== true) {newerArr[n][z]++}}
-    }
-  })
-}) 
-       newerArr.forEach((g, x)=>{
-       $("#gameCanvas").append("<tr id = \"row"+x+"\"></tr>")
-       g.forEach((h, y)=>{
-       if (h===true){ $("#row"+x).append("<td class = \"tile\" onclick=\"tileClick(this)\"> </td>")} 
-       else { $("#row"+x).append("<td class = \"tile\" onclick=\"tileClick(this)\">"+h+"</td>")}
-         })
-       })
-}
-
-let zeroClicked = function(tile, x, y){//
-let canvasSize = document.getElementById("input").value 
-let canvas = document.getElementById("gameCanvas")
-tile.innerHTML = ""
-tile.style.backgroundColor = "rgb	(157,225,154)"
-let up, down, left, right = ""
-  
-if (x !=0) { up = canvas.rows[x-1].cells[y]} else { up = tile}
-if (y != canvasSize-1){ right = canvas.rows[x].cells[y+1]} else { right = tile}
-if (x != canvasSize-1){ down = canvas.rows[x+1].cells[y]} else { down = tile}
-if (y != 0){ left = canvas.rows[x].cells[y-1]} else { left = tile}
-
-if (left.innerHTML != "" && down.innerHTML != ""){
-canvas.rows[x+1].cells[y-1].style.color = "black"
-canvas.rows[x+1].cells[y-1].style.backgroundColor = "rgb(157,225,154)"
-}
-  
-if (left.innerHTML != "" && up.innerHTML != ""){
-canvas.rows[x-1].cells[y-1].style.color = "black"
-canvas.rows[x-1].cells[y-1].style.backgroundColor = "rgb(157,225,154)"
-}
-if (right.innerHTML != "" && up.innerHTML != ""){
-canvas.rows[x-1].cells[y+1].style.color = "black"
-canvas.rows[x-1].cells[y+1].style.backgroundColor = "rgb(157,225,154)"
-}
-if (right.innerHTML != "" && down.innerHTML != ""){
-canvas.rows[x+1].cells[y+1].style.color = "black"
-canvas.rows[x+1].cells[y+1].style.backgroundColor = "rgb(157,225,154)"
-}
-  
-let directionArr = [up, down, left, right]
-
-for (let i=0; i<4; i++) {
-  if (directionArr[i].innerHTML === "0"){
-  zeroClicked(directionArr[i], directionArr[i].parentNode.rowIndex, directionArr[i].cellIndex)
+    flagged = false;
+    document.getElementById("flag").style.backgroundColor = "";
   }
-  else {
-    directionArr[i].style.color = "black"
-    directionArr[i].style.backgroundColor = "rgb(157,225,154)"
-    tile.style.color = "black"
-    tile.style.backgroundColor = "rgb(157,225,154)"
-}
-}
+};
+
+difficultyText = [
+  "Nice and easy",
+  "Not too challenging",
+  "Should be a few mines per row",
+  "This is going to be tricky",
+  "Probably won't go well",
+  "Good luck!",
+];
+
+const changeDifficulty = (value) => {
+  gameDifficulty = value;
+  $("#sliderValue").html(difficultyText[value]);
+};
+
+const newGameWarning = (value) => {
+  console.log(value);
+  if (value >= 100) {
+    console.log("here");
+    $("#buttonsText").css("display", "block");
+  } else {
+    $("#buttonsText").css("display", "none");
+  }
+};
+
+const generateNewMinefield = () => {
+  //init canvassize
+  let canvasSize = document.getElementById("input").value;
+  if (canvasSize >= 100) {
+    let confirmation = confirm(
+      "Boards over 100 may crash your browser, are you sure?"
+    );
+    if (confirm) return null;
+  }
+  gameOver = false;
+  var flaggedMines = 0;
+  let mineCount = 0;
+  //init gameboard
+  let gameBoard = document.getElementById("gameCanvas");
+  //remove all child nodes from gameboard
+  while (gameBoard.firstChild) {
+    gameBoard.removeChild(gameBoard.firstChild);
   }
 
-let tileClick = function(clickedTile){
-if (!gameOver){
-let rowIndex = clickedTile.parentNode.rowIndex
-let cellIndex = clickedTile.cellIndex
-let tileType = clickedTile.innerHTML
-switch(tileType){
-case " ": {
-if (flagged) {
-if (clickedTile.flagged){
-clickedTile.classList.remove("flag")
-clickedTile.flagged = 0;
-mineEgged--
-} else {
-clickedTile.classList.add("flag")
-clickedTile.flagged = 1;
-mineEgged++
-console.log(wrongFlagged)
-if (mineEgged == mineCount && wrongFlagged == 0) {
-document.getElementById("gameCanvas").childNodes.forEach(x=>x.childNodes.forEach(y=>y.style.color = "green"))
-gameOver++
-}
-}
-} else {
-clickedTile.classList.add("ron")
-gameOver = true;
-document.getElementById("gameCanvas").childNodes.forEach(x=>x.childNodes.forEach(y=>{
-if (y.innerHTML == " ") {y.classList.add("ron")}
-y.style.color = "black"
-}))
-  }
-}
-    break;
-  case "0":  {
-       if (flagged) {      
-    if (clickedTile.flagged){
-clickedTile.classList.remove("flag")
-clickedTile.flagged = 0;
-wrongFlagged--
-} else {
-clickedTile.classList.add("flag")
-clickedTile.flagged = 1;
-wrongFlagged++
-    } 
+  //canvas is square, each tile is ~30px^2 including shaddows
+  let newCanvasSize = canvasSize * 33;
+
+  //size the canvas according to the number of tiles
+  document.getElementById("gameCanvas").style.width = newCanvasSize + "px";
+  document.getElementById("gameCanvas").style.height = newCanvasSize + "px";
+
+  //create temporary virtual gameboard
+  let tempVirtualGameboard = [];
+  for (let i = 0; i < canvasSize; i++) {
+    // create x temporary arrays as rows
+    let tempArr = [];
+    for (let p = 0; p < canvasSize; p++) {
+      //TODO
+      //create ~n/10 mines per row [WILL BE BASED ON SET DIFFICULTY]
+      if (Math.floor(Math.random() * 10) <= gameDifficulty) {
+        //false == mine
+        tempArr.push(true);
+        //keep track of the number of mines
+        mineCount++;
+      } else {
+        //add 1 for non mines
+        tempArr.push(0);
+      }
     }
-    else {
-    clickedTile.style.backgroundColor = "rgb(211,211,211)"
-    zeroClicked(clickedTile, rowIndex, cellIndex)
+    //push rows to temporary virtual gameboard
+    tempVirtualGameboard.push(tempArr);
+    // console.log("0 = ", tempVirtualGameboard)
   }
+
+  //create empty second virtual gameboard
+  let finalVirtualGameboard = [];
+
+  //itterate over temporary virtual gameboard
+  tempVirtualGameboard.forEach((row, rowIndex) => {
+    row.forEach((tile, tileIndex) => {
+      if (tile === true) {
+        console.log(tile);
+
+        let firstRow = rowIndex == 0;
+        let lastRow = rowIndex == canvasSize - 1;
+        let firstTile = tileIndex == 0;
+        let lastTile = tileIndex == canvasSize - 1;
+
+        //left
+        if (!firstTile && row[tileIndex - 1] !== true) row[tileIndex - 1]++;
+
+        //right
+        if (!lastTile && row[tileIndex + 1] !== true) row[tileIndex + 1]++;
+
+        //up
+        if (!firstRow && tempVirtualGameboard[rowIndex - 1][tileIndex] !== true)
+          tempVirtualGameboard[rowIndex - 1][tileIndex]++;
+
+        //down
+        if (!lastRow && tempVirtualGameboard[rowIndex + 1][tileIndex] !== true)
+          tempVirtualGameboard[rowIndex + 1][tileIndex]++;
+
+        //up/left
+        if (
+          !firstRow &&
+          !firstTile &&
+          tempVirtualGameboard[rowIndex - 1][tileIndex - 1] !== true
+        )
+          tempVirtualGameboard[rowIndex - 1][tileIndex - 1]++;
+
+        //up/right
+        if (
+          !firstRow &&
+          !lastTile &&
+          tempVirtualGameboard[rowIndex - 1][tileIndex + 1] !== true
+        )
+          tempVirtualGameboard[rowIndex - 1][tileIndex + 1]++;
+
+        //down/left
+        if (
+          !lastRow &&
+          !firstTile &&
+          tempVirtualGameboard[rowIndex + 1][tileIndex - 1] !== true
+        )
+          tempVirtualGameboard[rowIndex + 1][tileIndex - 1]++;
+
+        //down/right
+        if (
+          !lastRow &&
+          !lastTile &&
+          tempVirtualGameboard[rowIndex + 1][tileIndex + 1] !== true
+        )
+          tempVirtualGameboard[rowIndex + 1][tileIndex + 1]++;
+      }
+    });
+  });
+
+  //iterate over final virtual gameboard
+  tempVirtualGameboard.forEach((row, rowIndex) => {
+    // finalVirtualGameboard.forEach((row, rowIndex)=>{
+    //append a row with the id of the row's index
+    $("#gameCanvas").append('<tr id = "row' + rowIndex + '"></tr>');
+    row.forEach((tile) => {
+      //if the tile is a mine, add on a mine tile
+      if (tile === true)
+        $("#row" + rowIndex).append(
+          '<td class = "tile" onclick="tileClick(this)"> </td>'
+        );
+      //else add on the number in the tile
+      else
+        $("#row" + rowIndex).append(
+          '<td class = "tile" onclick="tileClick(this)">' + tile + "</td>"
+        );
+    });
+  });
+};
+
+let zeroClicked = (tile, rowIndex, cellIndex) => {
+  let canvasSize = document.getElementById("input").value;
+  let canvas = document.getElementById("gameCanvas");
+  tile.innerHTML = "";
+  tile.style.backgroundColor = "rgb	(157,225,154)";
+  let up,
+    down,
+    left,
+    right = "";
+
+  //get surrounding tile values
+  if (rowIndex != 0) {
+    up = canvas.rows[rowIndex - 1].cells[cellIndex];
+  } else {
+    up = tile;
   }
-    break;
-  case "1":
-  case "2":
-  case "3": 
-  case "4":
-  case "5":
-  case "6":
-  case "7":
-  case "8": 
-    {
-    if (flagged) {      
-    if (clickedTile.flagged){
-clickedTile.classList.remove("flag")
-clickedTile.flagged = 0;
-wrongFlagged--
-} else {
-clickedTile.classList.add("flag")
-clickedTile.flagged = 1;
-wrongFlagged++
-    } 
+  if (cellIndex != canvasSize - 1) {
+    right = canvas.rows[rowIndex].cells[cellIndex + 1];
+  } else {
+    right = tile;
+  }
+  if (rowIndex != canvasSize - 1) {
+    down = canvas.rows[rowIndex + 1].cells[cellIndex];
+  } else {
+    down = tile;
+  }
+  if (cellIndex != 0) {
+    left = canvas.rows[rowIndex].cells[cellIndex - 1];
+  } else {
+    left = tile;
+  }
+
+  //reveal corners if they are not mines
+  if (
+    left.innerHTML != "" &&
+    down.innerHTML != "" &&
+    left.innerHTML != "0" &&
+    down.innerHTML != "0"
+  ) {
+    canvas.rows[rowIndex + 1].cells[cellIndex - 1].style.color = "black";
+    canvas.rows[rowIndex + 1].cells[cellIndex - 1].style.backgroundColor =
+      "rgb(157,225,154)";
+  }
+
+  if (
+    left.innerHTML != "" &&
+    up.innerHTML != "" &&
+    left.innerHTML != "0" &&
+    down.innerHTML != "0"
+  ) {
+    canvas.rows[rowIndex - 1].cells[cellIndex - 1].style.color = "black";
+    canvas.rows[rowIndex - 1].cells[cellIndex - 1].style.backgroundColor =
+      "rgb(157,225,154)";
+  }
+  if (
+    right.innerHTML != "" &&
+    up.innerHTML != "" &&
+    left.innerHTML != "0" &&
+    down.innerHTML != "0"
+  ) {
+    canvas.rows[rowIndex - 1].cells[cellIndex + 1].style.color = "black";
+    canvas.rows[rowIndex - 1].cells[cellIndex + 1].style.backgroundColor =
+      "rgb(157,225,154)";
+  }
+  if (
+    right.innerHTML != "" &&
+    down.innerHTML != "" &&
+    left.innerHTML != "0" &&
+    down.innerHTML != "0"
+  ) {
+    canvas.rows[rowIndex + 1].cells[cellIndex + 1].style.color = "black";
+    canvas.rows[rowIndex + 1].cells[cellIndex + 1].style.backgroundColor =
+      "rgb(157,225,154)";
+  }
+
+  let directionArr = [up, down, left, right];
+
+  for (let i = 0; i < 4; i++) {
+    if (directionArr[i].innerHTML === "0") {
+      //repeat function with 0
+      zeroClicked(
+        directionArr[i],
+        directionArr[i].parentNode.rowIndex,
+        directionArr[i].cellIndex
+      );
+    } else {
+      directionArr[i].style.color = "black";
+      directionArr[i].style.backgroundColor = "rgb(157,225,154)";
+      tile.style.color = "black";
+      tile.style.backgroundColor = "rgb(157,225,154)";
     }
-    else {
-    clickedTile.style.color = "black";
-    clickedTile.style.backgroundColor = "rgb(157,225,154)";
+  }
+};
+
+//when the userclicks on a tile
+let tileClick = function (clickedTile) {
+  //do nothing if game is over
+  if (!gameOver) {
+    let rowIndex = clickedTile.parentNode.rowIndex;
+    let cellIndex = clickedTile.cellIndex;
+    let tileType = clickedTile.innerHTML;
+    switch (tileType) {
+      //if mine is clicked
+      case " ":
+        {
+          //if user is in flagging mode
+          if (flagged) {
+            //if tile is already flagged
+            if (clickedTile.flagged) {
+              //remove the flag
+              clickedTile.classList.remove("flag");
+              //mark the tile as unflagged
+              clickedTile.flagged = false;
+              //count the number of mines flagged
+              mineFlagged--;
+            } else {
+              //if tile not already flagged
+              clickedTile.classList.add("flag");
+              //mark the tile as flagged
+              clickedTile.flagged = true;
+              //count the number of mines flagged
+              mineFlagged++;
+              //if all mines are accounted for and no tiles are wrongly flagged
+              if (mineFlagged == mineCount && wrongFlagged == 0) {
+                //TODO
+                //GAME WON EVENT
+                document
+                  .getElementById("gameCanvas")
+                  .childNodes.forEach((x) => {
+                    x.childNodes.forEach((y) => (y.style.color = "green"));
+                  });
+                //game is over
+                gameOver = true;
+              }
+            }
+          } else {
+            clickedTile.classList.add("ron");
+            gameOver = true;
+            document.getElementById("gameCanvas").childNodes.forEach((row) =>
+              row.childNodes.forEach((tile) => {
+                if (tile.innerHTML == " ") {
+                  //show all mines
+                  tile.classList.add("ron");
+                } else if (tile.innerHTML == "0") {
+                  //hide 0's
+                  tile.style.color = "rgb(164,197,234)";
+                } else {
+                  //show all numbers
+                  tile.style.color = "black";
+                }
+              })
+            );
+          }
+        }
+        break;
+      case "0":
+        {
+          if (flagged) {
+            if (clickedTile.flagged) {
+              clickedTile.classList.remove("flag");
+              clickedTile.flagged = false;
+              wrongFlagged--;
+            } else {
+              clickedTile.classList.add("flag");
+              clickedTile.flagged = true;
+              wrongFlagged++;
+            }
+          } else {
+            clickedTile.style.backgroundColor = "rgb(211,211,211)";
+            zeroClicked(clickedTile, rowIndex, cellIndex);
+          }
+        }
+        break;
+      default:
+        {
+          if (flagged) {
+            if (clickedTile.flagged) {
+              clickedTile.classList.remove("flag");
+              clickedTile.flagged = 0;
+              wrongFlagged--;
+            } else {
+              clickedTile.classList.add("flag");
+              clickedTile.flagged = 1;
+              wrongFlagged++;
+            }
+          } else {
+            clickedTile.style.color = "black";
+            clickedTile.style.backgroundColor = "rgb(157,225,154)";
+          }
+        }
+        break;
     }
-}
-    break;      
-} 
-}
-}
+  }
+};

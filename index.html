@@ -1,19 +1,27 @@
 <HTML>
-<HEAD>
-  <script type="text/javascript" src="index.js"></script>
-  <link rel = "stylesheet" type = "text/css" href = "style.css" />
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-</HEAD>
-<BODY>
-<div id=all>
-  <div id = "buttons">
-  <button id="flag" class = "btn" onclick="flag()">Add / Remove Flag</button>
-<button onclick="test()" class = "btn">Generate New Minefield</button>
-<input id="input" value="10"></input>
-   </div>
-<table id = gameCanvas></table>
-</div>
-<div id="egg">  
-</div>
-</BODY>
+  <HEAD>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+    <link rel = "stylesheet" type = "text/css" href = "style.css" />
+  </HEAD>
+  <BODY>
+    <div class=all>
+      <div class="settingsContainer">
+        <div class="difficultyContainer">
+          <input name="slider" type="range" min="0" max="5" value="1" class="slider" onchange="changeDifficulty(this.value)" >
+          <span class="sliderValue" id="sliderValue">Not too challenging</span>
+          <!-- <p class="difficultyText" id="difficultyText">Nice and easy</p> -->
+        </div>
+        <div class = "buttonsContainer">
+          <div class = "buttons">
+            <input type="number" id="input" value="10" min="1" onchange="newGameWarning(this.value)"></input>
+            <button onclick="generateNewMinefield()" class = "btn">New Game</button>
+          </div>
+          <span id="buttonsText" class="buttonsText">* Boards over 100 may crash your browser</span>
+        </div>
+      </div>
+      <button id="flag" class = "btn" onclick="toggleUserFlagging()">Add / Remove Flag</button>
+      <table id = gameCanvas></table>
+    </div>
+  </BODY>
 </HTML>
