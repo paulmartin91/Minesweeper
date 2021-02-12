@@ -32,14 +32,12 @@ difficultyText = [
 ];
 
 const changeDifficulty = (value) => {
-  gameDifficulty = value;
+  gameDifficulty = 1 + (value/2);
   $("#sliderValue").html(difficultyText[value]);
 };
 
 const newGameWarning = (value) => {
-  console.log(value);
   if (value >= 100) {
-    console.log("here");
     $("#buttonsText").css("display", "block");
   } else {
     $("#buttonsText").css("display", "none");
@@ -48,6 +46,7 @@ const newGameWarning = (value) => {
 
 const generateNewMinefield = () => {
   //init canvassize
+  $('#resultText').html("")
   let canvasSize = document.getElementById("input").value;
   if (canvasSize >= 100) {
     let confirmation = confirm(
@@ -57,7 +56,7 @@ const generateNewMinefield = () => {
   }
   gameOver = false;
   var flaggedMines = 0;
-  let mineCount = 0;
+  mineCount = 0;
   //init gameboard
   let gameBoard = document.getElementById("gameCanvas");
   //remove all child nodes from gameboard
@@ -85,6 +84,7 @@ const generateNewMinefield = () => {
         tempArr.push(true);
         //keep track of the number of mines
         mineCount++;
+        console.log(mineCount)
       } else {
         //add 1 for non mines
         tempArr.push(0);
@@ -92,17 +92,12 @@ const generateNewMinefield = () => {
     }
     //push rows to temporary virtual gameboard
     tempVirtualGameboard.push(tempArr);
-    // console.log("0 = ", tempVirtualGameboard)
   }
-
-  //create empty second virtual gameboard
-  let finalVirtualGameboard = [];
 
   //itterate over temporary virtual gameboard
   tempVirtualGameboard.forEach((row, rowIndex) => {
     row.forEach((tile, tileIndex) => {
       if (tile === true) {
-        console.log(tile);
 
         let firstRow = rowIndex == 0;
         let lastRow = rowIndex == canvasSize - 1;
@@ -158,6 +153,8 @@ const generateNewMinefield = () => {
     });
   });
 
+  console.log(tempVirtualGameboard)
+
   //iterate over final virtual gameboard
   tempVirtualGameboard.forEach((row, rowIndex) => {
     // finalVirtualGameboard.forEach((row, rowIndex)=>{
@@ -183,70 +180,77 @@ let zeroClicked = (tile, rowIndex, cellIndex) => {
   let canvas = document.getElementById("gameCanvas");
   tile.innerHTML = "";
   tile.style.backgroundColor = "rgb	(157,225,154)";
-  let up,
-    down,
-    left,
-    right = "";
+  let up = null,
+    down = null,
+    left = null,
+    right = null;
 
   //get surrounding tile values
   if (rowIndex != 0) {
     up = canvas.rows[rowIndex - 1].cells[cellIndex];
-  } else {
-    up = tile;
-  }
+  } 
+  // else {
+  //   up = tile;
+  // }
   if (cellIndex != canvasSize - 1) {
     right = canvas.rows[rowIndex].cells[cellIndex + 1];
-  } else {
-    right = tile;
-  }
+  } 
+  // else {
+  //   right = tile;
+  // }
   if (rowIndex != canvasSize - 1) {
     down = canvas.rows[rowIndex + 1].cells[cellIndex];
-  } else {
-    down = tile;
-  }
+  } 
+  // else {
+  //   down = tile;
+  // }
   if (cellIndex != 0) {
     left = canvas.rows[rowIndex].cells[cellIndex - 1];
-  } else {
-    left = tile;
-  }
+  } 
+  // else {
+  //   left = tile;
+  // }
 
   //reveal corners if they are not mines
+
   if (
+    //if left and down arent mines
+    left &&
+    down &&
     left.innerHTML != "" &&
-    down.innerHTML != "" &&
-    left.innerHTML != "0" &&
-    down.innerHTML != "0"
+    down.innerHTML != "" 
   ) {
+    //reveal down/left
     canvas.rows[rowIndex + 1].cells[cellIndex - 1].style.color = "black";
     canvas.rows[rowIndex + 1].cells[cellIndex - 1].style.backgroundColor =
       "rgb(157,225,154)";
   }
 
   if (
+    left &&
+    up &&
     left.innerHTML != "" &&
-    up.innerHTML != "" &&
-    left.innerHTML != "0" &&
-    down.innerHTML != "0"
+    up.innerHTML != ""
   ) {
     canvas.rows[rowIndex - 1].cells[cellIndex - 1].style.color = "black";
     canvas.rows[rowIndex - 1].cells[cellIndex - 1].style.backgroundColor =
       "rgb(157,225,154)";
   }
   if (
+    right &&
+    up &&
     right.innerHTML != "" &&
-    up.innerHTML != "" &&
-    left.innerHTML != "0" &&
-    down.innerHTML != "0"
+    up.innerHTML != ""
   ) {
     canvas.rows[rowIndex - 1].cells[cellIndex + 1].style.color = "black";
     canvas.rows[rowIndex - 1].cells[cellIndex + 1].style.backgroundColor =
       "rgb(157,225,154)";
   }
   if (
+    right &&
+    down &&
     right.innerHTML != "" &&
-    down.innerHTML != "" &&
-    left.innerHTML != "0" &&
-    down.innerHTML != "0"
+    down.innerHTML != ""
   ) {
     canvas.rows[rowIndex + 1].cells[cellIndex + 1].style.color = "black";
     canvas.rows[rowIndex + 1].cells[cellIndex + 1].style.backgroundColor =
@@ -255,21 +259,23 @@ let zeroClicked = (tile, rowIndex, cellIndex) => {
 
   let directionArr = [up, down, left, right];
 
-  for (let i = 0; i < 4; i++) {
-    if (directionArr[i].innerHTML === "0") {
-      //repeat function with 0
-      zeroClicked(
-        directionArr[i],
-        directionArr[i].parentNode.rowIndex,
-        directionArr[i].cellIndex
-      );
-    } else {
-      directionArr[i].style.color = "black";
-      directionArr[i].style.backgroundColor = "rgb(157,225,154)";
-      tile.style.color = "black";
-      tile.style.backgroundColor = "rgb(157,225,154)";
+  directionArr.forEach(direction => {
+    if (direction) {
+      if (direction.innerHTML === "0") {
+        //repeat function with 0
+        zeroClicked(
+          direction,
+          direction.parentNode.rowIndex,
+          direction.cellIndex
+        );
+      } else {
+        direction.style.color = "black";
+        direction.style.backgroundColor = "rgb(157,225,154)";
+        tile.style.color = "black";
+        tile.style.backgroundColor = "rgb(157,225,154)";
+      }
     }
-  }
+  })
 };
 
 //when the userclicks on a tile
@@ -299,8 +305,11 @@ let tileClick = function (clickedTile) {
               //mark the tile as flagged
               clickedTile.flagged = true;
               //count the number of mines flagged
+              console.log(mineFlagged)
               mineFlagged++;
+              console.log(mineFlagged, mineCount)
               //if all mines are accounted for and no tiles are wrongly flagged
+              //console.log(mineFlagged, mineCount, wrongFlagged)
               if (mineFlagged == mineCount && wrongFlagged == 0) {
                 //TODO
                 //GAME WON EVENT
@@ -309,6 +318,7 @@ let tileClick = function (clickedTile) {
                   .childNodes.forEach((x) => {
                     x.childNodes.forEach((y) => (y.style.color = "green"));
                   });
+                  $('#resultText').html("WINNER!")
                 //game is over
                 gameOver = true;
               }
@@ -330,6 +340,7 @@ let tileClick = function (clickedTile) {
                 }
               })
             );
+            $('#resultText').html("TOO BAD")
           }
         }
         break;

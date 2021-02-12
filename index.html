@@ -15,13 +15,14 @@
         <div class = "buttonsContainer">
           <div class = "buttons">
             <input type="number" id="input" value="10" min="1" onchange="newGameWarning(this.value)"></input>
-            <button onclick="generateNewMinefield()" class = "btn">New Game</button>
+            <button id="newGame" onclick="generateNewMinefield()" class = "btn">New Game</button>
           </div>
           <span id="buttonsText" class="buttonsText">* Boards over 100 may crash your browser</span>
         </div>
       </div>
       <button id="flag" class = "btn" onclick="toggleUserFlagging()">Add / Remove Flag</button>
       <table id = gameCanvas></table>
+      <h1 id="resultText"></h1>
     </div>
   </BODY>
 </HTML>
